@@ -42,14 +42,14 @@ def get_iree_gpu_args():
 @functools.cache
 def get_iree_rocm_args():
     ireert.flags.FUNCTION_INPUT_VALIDATION = False
-    # get arch from rocminfo.
+    # get arch from clinfo.
     import re
     import subprocess
 
     rocm_arch = re.match(
         r".*(gfx\w+)",
         subprocess.check_output(
-            "rocminfo | grep -i 'gfx'", shell=True, text=True
+            "clinfo | grep -i 'gfx'", shell=True, text=True
         ),
     ).group(1)
     print(f"Found rocm arch {rocm_arch}...")

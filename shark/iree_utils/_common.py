@@ -121,7 +121,7 @@ def check_device_drivers(device):
         return False
     elif device == "rocm":
         try:
-            subprocess.check_output("rocminfo")
+            subprocess.check_output("clinfo")
         except Exception:
             return True
 

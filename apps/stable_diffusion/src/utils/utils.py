@@ -63,6 +63,7 @@ def _load_vmfb(shark_module, vmfb_path, model, precision):
 
 
 def _compile_module(shark_module, model_name, extra_args=[]):
+    extra_args.append("-iree-rocm-bc-dir=C:\\HIP\\amdgcn\\bitcode")
     if args.load_vmfb or args.save_vmfb:
         vmfb_path = get_vmfb_path_name(model_name)
         if args.load_vmfb and os.path.isfile(vmfb_path) and not args.save_vmfb:
@@ -105,7 +106,7 @@ def get_shark_model(tank_url, model_name, extra_args=None):
         frontend="torch",
     )
     shark_module = SharkInference(
-        mlir_model, device=args.device, mlir_dialect="tm_tensor"
+        mlir_model, device="rocm", mlir_dialect="tm_tensor"
     )
     return _compile_module(shark_module, model_name, extra_args)
 
@@ -476,6 +477,8 @@ def get_available_devices():
     available_devices.extend(metal_devices)
     cuda_devices = get_devices_by_name("cuda")
     available_devices.extend(cuda_devices)
+    rocm_devices = get_devices_by_name("rocm")
+    available_devices.extend(rocm_devices)
     cpu_device = get_devices_by_name("cpu-sync")
     available_devices.extend(cpu_device)
     cpu_device = get_devices_by_name("cpu-task")
@@ -499,6 +502,8 @@ def get_opt_flags(model, precision="fp16"):
         iree_flags.append(
             f"-iree-vulkan-target-triple={args.iree_vulkan_target_triple}"
         )
+    #if sys.platform == "win32":
+    iree_flags.append("-iree-rocm-bc-dir=C:\\HIP\\amdgcn\\bitcode")
 
     if args.iree_constant_folding == False:
         iree_flags.append("--iree-opt-const-expr-hoisting=False")
